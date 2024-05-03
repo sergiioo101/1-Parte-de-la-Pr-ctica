@@ -1,9 +1,10 @@
 package model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-public class Poblacion {
+public class Poblacion implements Serializable {
     private String nombre;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
@@ -29,7 +30,7 @@ public class Poblacion {
         this.diaIncremento = diaIncremento;
         this.comidaMaxima = comidaMaxima;
         this.comidaFinal = comidaFinal;
-        this.planAlimentacion = new int[30];  // Asumiendo que cada experimento dura 30 días
+        this.planAlimentacion = new int[30];  // Assuming each experiment lasts 30 days
         calcularPlanAlimentacion();
     }
 
@@ -57,13 +58,14 @@ public class Poblacion {
     @Override
     public String toString() {
         return "Poblacion{" +
-                "nombre='" + nombre + '\'' +
-                ", fechaInicio=" + fechaInicio +
-                ", fechaFin=" + fechaFin +
-                ", numBacterias=" + numBacterias +
-                ", temperatura=" + temperatura +
-                ", luminosidad='" + luminosidad + '\'' +
-                ", planAlimentacion=" + Arrays.toString(planAlimentacion) +
+                "nombre:'" + nombre + '\'' +
+                ", fechaInicio:" + fechaInicio +
+                ", fechaFin:" + fechaFin +
+                ", numBacterias:" + numBacterias +
+                ", temperatura:" + temperatura +
+                ", luminosidad:'" + luminosidad + '\'' +
+                ", planAlimentacion:" + Arrays.toString(planAlimentacion) +
                 '}';
     }
 }
+

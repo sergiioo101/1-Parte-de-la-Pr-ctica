@@ -1,9 +1,10 @@
 package model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Experimento {
+public class Experimento implements Serializable {
     private String archivo;
     private List<Poblacion> poblaciones;
 
@@ -39,3 +40,4 @@ public class Experimento {
         this.archivo = archivo;
     }
 }
+
