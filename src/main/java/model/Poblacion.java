@@ -46,8 +46,9 @@ public class Poblacion {
         }
     }
 
-    // Getters y Setters para acceder y modificar los atributos de la clase
-    // Aquí incluiría métodos como getNombre(), getFechaInicio(), etc.
+    public String getNombre() {
+        return nombre;
+    }
 
     public int[] getPlanAlimentacion() {
         return planAlimentacion;
@@ -65,5 +66,4 @@ public class Poblacion {
                 ", planAlimentacion=" + Arrays.toString(planAlimentacion) +
                 '}';
     }
-
 }

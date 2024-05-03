@@ -26,4 +26,16 @@ public class Experimento {
                 .findFirst()
                 .orElse(null);
     }
+
+    public List<Poblacion> getPoblaciones() {
+        return poblaciones;
+    }
+
+    public String getArchivo() {
+        return archivo;
+    }
+
+    public void setArchivo(String archivo) {
+        this.archivo = archivo;
+    }
 }
