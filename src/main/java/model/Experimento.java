@@ -17,8 +17,8 @@ public class Experimento implements Serializable {
         poblaciones.add(poblacion);
     }
 
-    public void removePoblacion(String nombrePoblacion) {
-        poblaciones.removeIf(p -> p.getNombre().equals(nombrePoblacion));
+    public boolean removePoblacion(String nombrePoblacion) {
+        return poblaciones.removeIf(p -> p.getNombre().equals(nombrePoblacion));
     }
 
     public Poblacion getPoblacion(String nombrePoblacion) {
@@ -40,4 +40,5 @@ public class Experimento implements Serializable {
         this.archivo = archivo;
     }
 }
+
 

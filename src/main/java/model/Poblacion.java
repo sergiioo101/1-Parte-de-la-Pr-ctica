@@ -30,7 +30,7 @@ public class Poblacion implements Serializable {
         this.diaIncremento = diaIncremento;
         this.comidaMaxima = comidaMaxima;
         this.comidaFinal = comidaFinal;
-        this.planAlimentacion = new int[30];  // Assuming each experiment lasts 30 days
+        this.planAlimentacion = new int[30];
         calcularPlanAlimentacion();
     }
 
@@ -40,9 +40,9 @@ public class Poblacion implements Serializable {
 
         for (int i = 0; i < 30; i++) {
             if (i < diaIncremento) {
-                planAlimentacion[i] = (int) (comidaInicial + i * incrementoDiario);
+                planAlimentacion[i] = comidaInicial + (int) (i * incrementoDiario);
             } else {
-                planAlimentacion[i] = (int) (comidaMaxima - (i - diaIncremento) * decrementoDiario);
+                planAlimentacion[i] = comidaMaxima - (int) ((i - diaIncremento) * decrementoDiario);
             }
         }
     }
@@ -68,4 +68,5 @@ public class Poblacion implements Serializable {
                 '}';
     }
 }
+
 
