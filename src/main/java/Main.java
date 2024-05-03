@@ -5,8 +5,11 @@ import model.Poblacion;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class Main {
 
@@ -18,43 +21,34 @@ public class Main {
     }
 
     private static void createAndShowGUI() {
-        // Establecer el look and feel del sistema para la interfaz de usuario
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Crear y configurar la ventana principal
         frame = new JFrame("Gestión de Experimentos de Cultivo de Bacterias");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
 
-        // Crear el panel de pestañas
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Pestaña para abrir o crear experimentos
         JPanel experimentPanel = createExperimentPanel();
         tabbedPane.addTab("Experimentos", experimentPanel);
 
-        // Pestaña para gestionar poblaciones
         JPanel populationPanel = createPopulationPanel();
         tabbedPane.addTab("Poblaciones", populationPanel);
 
-        // Pestaña para visualización de detalles
         JPanel detailsPanel = createDetailsPanel();
         tabbedPane.addTab("Detalles", detailsPanel);
 
-        // Agregar el panel de pestañas al frame
         frame.add(tabbedPane);
-        frame.setLocationRelativeTo(null);  // Centrar ventana
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
     private static JPanel createExperimentPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
-
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton btnLoad = new JButton("Cargar Experimento");
         JButton btnSave = new JButton("Guardar Experimento");
         JButton btnNew = new JButton("Nuevo Experimento");
@@ -106,8 +100,7 @@ public class Main {
     }
 
     private static JPanel createPopulationPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout());
 
         JTextArea populationDetails = new JTextArea(10, 50);
         populationDetails.setEditable(false);
@@ -129,13 +122,39 @@ public class Main {
     }
 
     private static void addPopulation() {
-        // Aquí añadiríamos una forma de recopilar datos y crear una nueva población, similar a lo que hemos descrito antes
-        JOptionPane.showMessageDialog(frame, "Funcionalidad para añadir población no implementada.", "En construcción", JOptionPane.INFORMATION_MESSAGE);
+        if (currentExperiment == null) {
+            JOptionPane.showMessageDialog(frame, "No hay un experimento activo. Por favor, crea o carga un experimento primero.");
+            return;
+        }
+        String nombre = JOptionPane.showInputDialog(frame, "Nombre de la Población:");
+        LocalDate fechaInicio = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Inicio (YYYY-MM-DD):"));
+        LocalDate fechaFin = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Fin (YYYY-MM-DD):"));
+        int numBacterias = Integer.parseInt(JOptionPane.showInputDialog(frame, "Número de Bacterias Iniciales:"));
+        double temperatura = Double.parseDouble(JOptionPane.showInputDialog(frame, "Temperatura:"));
+        String luminosidad = JOptionPane.showInputDialog(frame, "Luminosidad (Alta, Media, Baja):");
+        int comidaInicial = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Inicial:"));
+        int diaIncremento = Integer.parseInt(JOptionPane.showInputDialog(frame, "Día de Incremento Máximo:"));
+        int comidaMaxima = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Máxima en el Día de Incremento:"));
+        int comidaFinal = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Final en Día 30:"));
+
+        Poblacion nuevaPoblacion = new Poblacion(nombre, fechaInicio, fechaFin, numBacterias, temperatura, luminosidad, comidaInicial, diaIncremento, comidaMaxima, comidaFinal);
+        currentExperiment.addPoblacion(nuevaPoblacion);
+        JOptionPane.showMessageDialog(frame, "Población añadida correctamente.");
     }
 
     private static void removePopulation(JTextArea textArea) {
-        // Aquí implementaríamos la lógica para eliminar una población
-        JOptionPane.showMessageDialog(frame, "Funcionalidad para eliminar población no implementada.", "En construcción", JOptionPane.INFORMATION_MESSAGE);
+        if (currentExperiment == null) {
+            JOptionPane.showMessageDialog(frame, "No hay un experimento activo. Por favor, crea o carga un experimento primero.");
+            return;
+        }
+
+        String[] options = currentExperiment.getPoblaciones().stream().map(Poblacion::getNombre).toArray(String[]::new);
+        String selected = (String) JOptionPane.showInputDialog(frame, "Seleccione la población a eliminar:", "Eliminar Población", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        if (selected != null) {
+            currentExperiment.removePoblacion(selected);
+            textArea.setText("Población eliminada: " + selected);
+        }
     }
 
     private static JPanel createDetailsPanel() {
@@ -164,5 +183,35 @@ public class Main {
             textArea.setText("No hay poblaciones para mostrar o experimento no cargado.");
         }
     }
+    private static JPanel createExperimentListPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        File dir = new File(FileManager.DIRECTORY);
+        String[] experiments = dir.list();
+        if (experiments != null) {
+            for (String filename : experiments) {
+                JButton btnExperiment = new JButton(filename);
+                btnExperiment.addActionListener(e -> {
+                    currentExperiment = FileManager.loadExperiment(filename);
+                    JOptionPane.showMessageDialog(frame, "Experimento cargado: " + filename, "Cargar", JOptionPane.INFORMATION_MESSAGE);
+                });
+                panel.add(btnExperiment);
+            }
+        }
+
+        return panel;
+    }
+    private static void editCurrentExperiment() {
+        if (currentExperiment == null) {
+            JOptionPane.showMessageDialog(frame, "No hay experimento cargado para editar.");
+            return;
+        }
+        // Aquí agregarías una interfaz para editar los detalles del experimento actual
+        // y después guardar los cambios usando FileManager.saveExperiment
+    }
+
+
 }
+
 
