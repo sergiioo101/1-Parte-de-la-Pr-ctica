@@ -3,7 +3,7 @@ package data;
 import model.Experimento;
 import java.io.*;
 
-public class Guardado {
+public class FileManager {
     public static void saveExperiment(Experimento experimento, String filename) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(experimento);
