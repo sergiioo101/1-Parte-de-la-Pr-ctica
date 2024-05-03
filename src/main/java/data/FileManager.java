@@ -11,23 +11,27 @@ public class FileManager {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(DIRECTORY + filename))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(dir, filename)))) {
             oos.writeObject(experimento);
-            System.out.println("Experimento guardado exitosamente en: " + filename);
+            System.out.println("Experimento guardado exitosamente en: "+ filename);
         } catch (IOException e) {
             System.err.println("Error al guardar el experimento: " + e.getMessage());
         }
     }
 
     public static Experimento loadExperiment(String filename) {
-        Experimento experimento = null;
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(DIRECTORY + filename))) {
-            experimento = (Experimento) ois.readObject();
-            System.out.println("Experimento cargado exitosamente desde: " + filename);
+        File file = new File(DIRECTORY, filename);
+        if (!file.exists()) {
+            System.err.println("File does not exist: " + file.getAbsolutePath());
+            return null;
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            return (Experimento) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error al cargar el experimento: " + e.getMessage());
+            return null;
         }
-        return experimento;
     }
 }
+
 
