@@ -4,10 +4,7 @@ import model.Poblacion;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.io.File;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -65,7 +62,7 @@ public class Main {
     }
 
     private static void loadExperiment() {
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser(FileManager.DIRECTORY);
         int result = fileChooser.showOpenDialog(frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             String filename = fileChooser.getSelectedFile().getAbsolutePath();
@@ -83,7 +80,7 @@ public class Main {
             JOptionPane.showMessageDialog(frame, "No hay experimento activo para guardar.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser(FileManager.DIRECTORY);
         if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
             String filename = fileChooser.getSelectedFile().getAbsolutePath();
             FileManager.saveExperiment(currentExperiment, filename);
@@ -95,7 +92,8 @@ public class Main {
         String filename = JOptionPane.showInputDialog(frame, "Ingrese el nombre del archivo para el nuevo experimento:");
         if (filename != null && !filename.isEmpty()) {
             currentExperiment = new Experimento(filename);
-            JOptionPane.showMessageDialog(frame, "Nuevo experimento creado.", "Nuevo Experimento", JOptionPane.INFORMATION_MESSAGE);
+            FileManager.saveExperiment(currentExperiment, filename);  // Save immediately to create file
+            JOptionPane.showMessageDialog(frame, "Nuevo experimento creado y guardado.", "Nuevo Experimento", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -126,20 +124,25 @@ public class Main {
             JOptionPane.showMessageDialog(frame, "No hay un experimento activo. Por favor, crea o carga un experimento primero.");
             return;
         }
-        String nombre = JOptionPane.showInputDialog(frame, "Nombre de la Población:");
-        LocalDate fechaInicio = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Inicio (YYYY-MM-DD):"));
-        LocalDate fechaFin = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Fin (YYYY-MM-DD):"));
-        int numBacterias = Integer.parseInt(JOptionPane.showInputDialog(frame, "Número de Bacterias Iniciales:"));
-        double temperatura = Double.parseDouble(JOptionPane.showInputDialog(frame, "Temperatura:"));
-        String luminosidad = JOptionPane.showInputDialog(frame, "Luminosidad (Alta, Media, Baja):");
-        int comidaInicial = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Inicial:"));
-        int diaIncremento = Integer.parseInt(JOptionPane.showInputDialog(frame, "Día de Incremento Máximo:"));
-        int comidaMaxima = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Máxima en el Día de Incremento:"));
-        int comidaFinal = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Final en Día 30:"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+        try {
+            String nombre = JOptionPane.showInputDialog(frame, "Nombre de la Población:");
+            LocalDate fechaInicio = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Inicio (YYYY-M-D):"), formatter);
+            LocalDate fechaFin = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Fin(YYYY-M-D):"), formatter);
+            int numBacterias = Integer.parseInt(JOptionPane.showInputDialog(frame, "Número de Bacterias Iniciales:"));
+            double temperatura = Double.parseDouble(JOptionPane.showInputDialog(frame, "Temperatura:"));
+            String luminosidad = JOptionPane.showInputDialog(frame, "Luminosidad (Alta, Media, Baja):");
+            int comidaInicial = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Inicial:"));
+            int diaIncremento = Integer.parseInt(JOptionPane.showInputDialog(frame, "Día de Incremento Máximo:"));
+            int comidaMaxima = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Máxima en el Día de Incremento:"));
+            int comidaFinal = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Final en Día 30:"));
 
-        Poblacion nuevaPoblacion = new Poblacion(nombre, fechaInicio, fechaFin, numBacterias, temperatura, luminosidad, comidaInicial, diaIncremento, comidaMaxima, comidaFinal);
-        currentExperiment.addPoblacion(nuevaPoblacion);
-        JOptionPane.showMessageDialog(frame, "Población añadida correctamente.");
+            Poblacion nuevaPoblacion = new Poblacion(nombre, fechaInicio, fechaFin, numBacterias, temperatura, luminosidad, comidaInicial, diaIncremento, comidaMaxima, comidaFinal);
+            currentExperiment.addPoblacion(nuevaPoblacion);
+            JOptionPane.showMessageDialog(frame, "Población añadida correctamente.");
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(frame, "La fecha ingresada no es válida. Por favor, use el formato YYYY-M-D.");
+        }
     }
 
     private static void removePopulation(JTextArea textArea) {
@@ -183,35 +186,7 @@ public class Main {
             textArea.setText("No hay poblaciones para mostrar o experimento no cargado.");
         }
     }
-    private static JPanel createExperimentListPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        File dir = new File(FileManager.DIRECTORY);
-        String[] experiments = dir.list();
-        if (experiments != null) {
-            for (String filename : experiments) {
-                JButton btnExperiment = new JButton(filename);
-                btnExperiment.addActionListener(e -> {
-                    currentExperiment = FileManager.loadExperiment(filename);
-                    JOptionPane.showMessageDialog(frame, "Experimento cargado: " + filename, "Cargar", JOptionPane.INFORMATION_MESSAGE);
-                });
-                panel.add(btnExperiment);
-            }
-        }
-
-        return panel;
-    }
-    private static void editCurrentExperiment() {
-        if (currentExperiment == null) {
-            JOptionPane.showMessageDialog(frame, "No hay experimento cargado para editar.");
-            return;
-        }
-        // Aquí agregarías una interfaz para editar los detalles del experimento actual
-        // y después guardar los cambios usando FileManager.saveExperiment
-    }
-
-
 }
+
 
 
