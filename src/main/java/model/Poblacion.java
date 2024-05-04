@@ -16,6 +16,8 @@ public class Poblacion implements Serializable {
     private int comidaMaxima;
     private int comidaFinal;
     private int[] planAlimentacion;
+    private double growthRate;  // Tasa de crecimiento
+    private String antibioticResistance; // Resistencia a antibióticos
 
     public Poblacion(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int numBacterias,
                      double temperatura, String luminosidad, int comidaInicial, int diaIncremento,
@@ -30,7 +32,7 @@ public class Poblacion implements Serializable {
         this.diaIncremento = diaIncremento;
         this.comidaMaxima = comidaMaxima;
         this.comidaFinal = comidaFinal;
-        this.planAlimentacion = new int[30];
+        this.planAlimentacion = new int[30];  // Assuming each experiment lasts 30 days
         calcularPlanAlimentacion();
     }
 
@@ -55,7 +57,7 @@ public class Poblacion implements Serializable {
         return planAlimentacion;
     }
 
-    @Override
+@Override
     public String toString() {
         return "Poblacion{" +
                 "nombre:'" + nombre + '\'' +
@@ -65,6 +67,8 @@ public class Poblacion implements Serializable {
                 ", temperatura:" + temperatura +
                 ", luminosidad:'" + luminosidad + '\'' +
                 ", planAlimentacion:" + Arrays.toString(planAlimentacion) +
+                ", tasaCrecimiento:" + growthRate +
+                ", resistenciaAntibioticos:'" + antibioticResistance + '\'' +
                 '}';
     }
 }

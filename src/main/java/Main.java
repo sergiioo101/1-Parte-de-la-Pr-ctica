@@ -4,43 +4,30 @@ import model.Poblacion;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.stream.Collectors;
 
 public class Main {
     private static Experimento currentExperiment;
     private static JFrame frame;
-    private static JList<String> listPoblaciones;
-    private static DefaultListModel<String> listModel;
+    private static JList<String> listPoblaciones; // Lista para mostrar nombres de poblaciones
+    private static DefaultListModel<String> listModel; // Modelo de datos para la lista
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::createAndShowGUI);
     }
 
     private static void createAndShowGUI() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         frame = new JFrame("Gestión de Experimentos de Cultivo de Bacterias");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        JPanel experimentPanel = createExperimentPanel();
-        tabbedPane.addTab("Experimentos", experimentPanel);
-
-        JPanel populationPanel = createPopulationPanel();
-        tabbedPane.addTab("Poblaciones", populationPanel);
-
-        JPanel detailsPanel = createDetailsPanel();
-        tabbedPane.addTab("Detalles", detailsPanel);
+        tabbedPane.addTab("Experimentos", createExperimentPanel());
+        tabbedPane.addTab("Poblaciones", createPopulationPanel());
+        tabbedPane.addTab("Detalles", createDetailsPanel());
 
         frame.add(tabbedPane);
         frame.setLocationRelativeTo(null);
@@ -126,35 +113,69 @@ public class Main {
     }
 
     private static void addPopulation() {
-        if (currentExperiment == null) {
-            JOptionPane.showMessageDialog(frame, "No hay un experimento activo. Por favor, crea o carga un experimento primero.");
-            return;
-        }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
-        try {
-            String nombre = JOptionPane.showInputDialog(frame, "Nombre de la Población:");
-            LocalDate fechaInicio = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Inicio (YYYY-M-D):"), formatter);
-            LocalDate fechaFin = LocalDate.parse(JOptionPane.showInputDialog(frame, "Fecha de Fin(YYYY-M-D):"), formatter);
-            int numBacterias = Integer.parseInt(JOptionPane.showInputDialog(frame, "Número de Bacterias Iniciales:"));
-            double temperatura = Double.parseDouble(JOptionPane.showInputDialog(frame, "Temperatura:"));
-            String luminosidad = JOptionPane.showInputDialog(frame, "Luminosidad (Alta, Media, Baja):");
-            int comidaInicial = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Inicial:"));
-            int diaIncremento = Integer.parseInt(JOptionPane.showInputDialog(frame, "Día de Incremento Máximo:"));
-            int comidaMaxima = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Máxima en el Día de Incremento:"));
-            int comidaFinal = Integer.parseInt(JOptionPane.showInputDialog(frame, "Comida Final en Día 30:"));
+        JPanel panel = new JPanel(new GridLayout(0, 2));
+        JTextField nameField = new JTextField();
+        JTextField startDateField = new JTextField();
+        JTextField endDateField = new JTextField();
+        JTextField numBacteriasField = new JTextField();
+        JTextField temperaturaField = new JTextField();
+        JTextField luminosidadField = new JTextField();
+        JTextField comidaInicialField = new JTextField();
+        JTextField diaIncrementoField = new JTextField();
+        JTextField comidaMaximaField = new JTextField();
+        JTextField comidaFinalField = new JTextField();
 
-            Poblacion nuevaPoblacion = new Poblacion(nombre, fechaInicio, fechaFin, numBacterias, temperatura, luminosidad, comidaInicial, diaIncremento, comidaMaxima, comidaFinal);
-            currentExperiment.addPoblacion(nuevaPoblacion);
-            updatePoblacionesList();
-            JOptionPane.showMessageDialog(frame, "Población añadida correctamente.");
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(frame, "La fecha ingresada no es válida. Por favor, use el formato YYYY-M-D.");
+        panel.add(new JLabel("Nombre:"));
+        panel.add(nameField);
+        panel.add(new JLabel("Fecha de Inicio (YYYY-MM-DD):"));
+        panel.add(startDateField);
+        panel.add(new JLabel("Fecha de Fin (YYYY-MM-DD):"));
+        panel.add(endDateField);
+        panel.add(new JLabel("Número de Bacterias:"));
+        panel.add(numBacteriasField);
+        panel.add(new JLabel("Temperatura:"));
+        panel.add(temperaturaField);
+        panel.add(new JLabel("Luminosidad:"));
+        panel.add(luminosidadField);
+        panel.add(new JLabel("Comida Inicial:"));
+        panel.add(comidaInicialField);
+        panel.add(new JLabel("Día de Incremento Máximo:"));
+        panel.add(diaIncrementoField);
+        panel.add(new JLabel("Comida Máxima en el Día de Incremento:"));
+        panel.add(comidaMaximaField);
+        panel.add(new JLabel("Comida Final en Día 30:"));
+        panel.add(comidaFinalField);
+
+        int result = JOptionPane.showConfirmDialog(frame, panel, "Añadir Población", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                String nombre = nameField.getText();
+                LocalDate fechaInicio = LocalDate.parse(startDateField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate fechaFin = LocalDate.parse(endDateField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                int numBacterias = Integer.parseInt(numBacteriasField.getText());
+                double temperatura = Double.parseDouble(temperaturaField.getText());
+                String luminosidad = luminosidadField.getText();
+                int comidaInicial = Integer.parseInt(comidaInicialField.getText());
+                int diaIncremento = Integer.parseInt(diaIncrementoField.getText());
+                int comidaMaxima = Integer.parseInt(comidaMaximaField.getText());
+                int comidaFinal = Integer.parseInt(comidaFinalField.getText());
+
+                Poblacion nuevaPoblacion = new Poblacion(nombre, fechaInicio, fechaFin, numBacterias, temperatura, luminosidad, comidaInicial, diaIncremento, comidaMaxima, comidaFinal);
+                currentExperiment.addPoblacion(nuevaPoblacion);
+                updatePoblacionesList();
+                JOptionPane.showMessageDialog(frame, "Población añadida correctamente.");
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(frame, "Error en las fechas. Asegúrese de que están en el formato correcto (YYYY-MM-DD).", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Por favor, introduzca números válidos en los campos numéricos.", "Error de Número", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     private static void removePopulation() {
         String selected = listPoblaciones.getSelectedValue();
-        if (selected != null && currentExperiment.removePoblacion(selected)) {
+        if (selected != null) {
+            currentExperiment.removePoblacion(selected);
             updatePoblacionesList();
             JOptionPane.showMessageDialog(frame, "Población eliminada correctamente.");
         } else {
@@ -164,7 +185,7 @@ public class Main {
 
     private static void updatePoblacionesList() {
         listModel.clear();
-        if (currentExperiment != null) {
+        if (currentExperiment != null && currentExperiment.getPoblaciones() != null) {
             for (Poblacion p : currentExperiment.getPoblaciones()) {
                 listModel.addElement(p.getNombre());
             }
@@ -173,15 +194,15 @@ public class Main {
 
     private static JPanel createDetailsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        JTextArea detailsArea = new JTextArea(10, 50);
+        JTextArea detailsArea = new JTextArea();
         detailsArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(detailsArea);
 
         JButton btnShowDetails = new JButton("Mostrar Detalles");
         btnShowDetails.addActionListener(e -> {
-            Poblacion p = currentExperiment.getPoblacion(listPoblaciones.getSelectedValue());
-            if (p != null) {
-                detailsArea.setText(p.toString());
+            Poblacion selectedPoblacion = currentExperiment.getPoblacion(listPoblaciones.getSelectedValue());
+            if (selectedPoblacion != null) {
+                detailsArea.setText(selectedPoblacion.toString());
             } else {
                 detailsArea.setText("Seleccione una población para ver detalles.");
             }
@@ -193,6 +214,8 @@ public class Main {
         return panel;
     }
 }
+
+
 
 
 
