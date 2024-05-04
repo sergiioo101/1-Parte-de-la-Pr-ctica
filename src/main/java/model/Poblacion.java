@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 public class Poblacion implements Serializable {
+    private static final long serialVersionUID = 5128373257598436884L;
+
+
     private String nombre;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
@@ -57,7 +60,7 @@ public class Poblacion implements Serializable {
         return planAlimentacion;
     }
 
-@Override
+    @Override
     public String toString() {
         return "Poblacion{" +
                 "nombre:'" + nombre + '\'' +
@@ -69,6 +72,7 @@ public class Poblacion implements Serializable {
                 ", planAlimentacion:" + Arrays.toString(planAlimentacion) +
                 '}';
     }
+
     public LocalDate getFechaInicio() {
         return fechaInicio;
     }
@@ -105,5 +109,7 @@ public class Poblacion implements Serializable {
         return comidaFinal;
     }
 }
+
+
 
 

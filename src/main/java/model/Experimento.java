@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Experimento implements Serializable {
+    private static final long serialVersionUID = -3476464909066190843L;
+
+
     private String archivo;
     private List<Poblacion> poblaciones;
 
@@ -40,6 +43,9 @@ public class Experimento implements Serializable {
         this.archivo = archivo;
     }
 }
+
+
+
 
 
 

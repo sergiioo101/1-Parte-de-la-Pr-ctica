@@ -247,16 +247,29 @@ public class Main {
         int comidaFinal = poblacion.getComidaFinal();
         int numDias = poblacion.getFechaInicio().until(poblacion.getFechaFin()).getDays() + 1;
 
-        for (int dia = 1; dia <= numDias; dia++) {
-            if (dia % diaIncremento == 0) {
-                comidaInicial += comidaMaxima;
-            }
-            comidaPorDia.add(comidaInicial);
+        // Asegurarse de que la duración de la población no supere los 30 días
+        if (numDias > 30) {
+            numDias = 30;
         }
-        comidaPorDia.set(numDias - 1, comidaFinal); // Actualizar la comida final en el último día
+
+        for (int dia = 1; dia <= numDias; dia++) {
+            int comidaDia;
+            if (dia <= diaIncremento) {
+                // Hasta el día de incremento máximo, la comida aumenta gradualmente hasta la comida máxima en el día de incremento
+                double incrementoDiario = (double) (comidaMaxima - comidaInicial) / diaIncremento;
+                comidaDia = (int) (comidaInicial + dia * incrementoDiario);
+            } else {
+                // Después del día de incremento máximo, la comida disminuye gradualmente hasta la comida final en el último día
+                double decrementoDiario = (double) (comidaMaxima - comidaFinal) / (30 - diaIncremento);
+                comidaDia = (int) (comidaMaxima - (dia - diaIncremento) * decrementoDiario);
+            }
+            comidaPorDia.add(comidaDia);
+        }
         return comidaPorDia;
     }
+
 }
+
 
 
 

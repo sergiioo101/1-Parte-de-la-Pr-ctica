@@ -12,7 +12,7 @@ public class FileManager {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            File file = new File(dir, filename); // Usamos el nombre de archivo directamente
+            File file = new File(dir, filename);
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
                 oos.writeObject(experimento);
                 System.out.println("Experimento guardado exitosamente en: " + file.getAbsolutePath());
@@ -24,7 +24,7 @@ public class FileManager {
 
     public static Experimento loadExperiment(String filename) {
         try {
-            File file = new File(DIRECTORY, filename); // Usamos el nombre de archivo directamente
+            File file = new File(DIRECTORY, filename);
             if (!file.exists()) {
                 System.err.println("El archivo no existe: " + file.getAbsolutePath());
                 return null;
@@ -38,6 +38,7 @@ public class FileManager {
         }
     }
 }
+
 
 
 
