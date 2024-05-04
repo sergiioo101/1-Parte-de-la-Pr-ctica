@@ -3,14 +3,12 @@ import model.Experimento;
 import model.Poblacion;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.format.DateTimeParseException;
-
 public class Main {
     private static Experimento currentExperiment;
     private static JFrame frame;
@@ -199,6 +197,8 @@ public class Main {
         JPanel panel = new JPanel(new BorderLayout());
         JTextArea detailsArea = new JTextArea();
         detailsArea.setEditable(false);
+        detailsArea.setMargin(new Insets(10, 10, 10, 10)); // Adding margin to the text area
+
         JScrollPane scrollPane = new JScrollPane(detailsArea);
 
         JButton btnShowDetails = new JButton("Mostrar Detalles");
@@ -207,10 +207,8 @@ public class Main {
             if (currentExperiment != null && currentExperiment.getPoblaciones() != null) {
                 for (Poblacion poblacion : currentExperiment.getPoblaciones()) {
                     details.append("Población: ").append(poblacion.getNombre()).append("\n");
-                    List<String> simulationResults = simulate(poblacion);
-                    for (int i = 0; i < simulationResults.size(); i++) {
-                        details.append("Día ").append(i + 1).append(": ").append(simulationResults.get(i)).append("\n");
-                    }
+                    String estimatedFood = calculateEstimatedFood(poblacion);
+                    details.append("Cantidad estimada de comida: ").append(estimatedFood).append("\n");
                     details.append("\n");
                 }
             }
@@ -223,20 +221,33 @@ public class Main {
         return panel;
     }
 
-    private static List<String> simulate(Poblacion poblacion) {
-        List<String> results = new ArrayList<>();
-        LocalDate currentDate = poblacion.getFechaInicio();
-        LocalDate endDate = poblacion.getFechaFin();
-        while (!currentDate.isAfter(endDate)) {
-            // Simulate a day
-            // Here you can calculate the amount of food to provide each day based on the population's parameters
-            String result = "Fecha: " + currentDate + ", Número de Bacterias: " + poblacion.getNumBacterias() + ", Temperatura: " + poblacion.getTemperatura() + ", Luminosidad: " + poblacion.getLuminosidad() + ", Comida Inicial: " + poblacion.getComidaInicial() + ", Día de Incremento Máximo: " + poblacion.getDiaIncremento() + ", Comida Máxima en el Día de Incremento: " + poblacion.getComidaMaxima() + ", Comida Final en Día 30: " + poblacion.getComidaFinal();
-            results.add(result);
-            currentDate = currentDate.plusDays(1);
+    private static String calculateEstimatedFood(Poblacion poblacion) {
+        // Aquí puedes implementar tu lógica para calcular la cantidad de comida estimada
+        // basada en los parámetros de la población
+        // Esta es solo una implementación de ejemplo, necesitarás ajustarla según tus necesidades
+        double temperatura = poblacion.getTemperatura();
+        int numBacterias = poblacion.getNumBacterias();
+        int dias = (int) poblacion.getFechaInicio().until(poblacion.getFechaFin()).getDays(); // Calculating the number of days
+        double comidaInicial = poblacion.getComidaInicial();
+        int diaIncremento = poblacion.getDiaIncremento();
+        int comidaMaxima = poblacion.getComidaMaxima();
+        int comidaFinal = poblacion.getComidaFinal();
+
+        List<Double> comidaPorDia = new ArrayList<>();
+        for (int dia = 1; dia <= dias; dia++) {
+            double comida = comidaInicial;
+            if (dia % diaIncremento == 0) {
+                comida = Math.min(comidaMaxima, comida + comidaFinal);
+            }
+            comidaPorDia.add(comida);
         }
-        return results;
+
+        // Summing up the total food for all days
+        double totalComida = comidaPorDia.stream().mapToDouble(Double::doubleValue).sum();
+        return String.format("%.2f", totalComida);
     }
 }
+
 
 
 
