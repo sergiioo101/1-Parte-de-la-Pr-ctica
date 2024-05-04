@@ -4,14 +4,17 @@ import model.Poblacion;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.stream.Collectors;
 
 public class Main {
-
     private static Experimento currentExperiment;
     private static JFrame frame;
+    private static JList<String> listPoblaciones;
+    private static DefaultListModel<String> listModel;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::createAndShowGUI);
@@ -69,6 +72,7 @@ public class Main {
             currentExperiment = FileManager.loadExperiment(filename);
             if (currentExperiment != null) {
                 JOptionPane.showMessageDialog(frame, "Experimento cargado correctamente.", "Cargar", JOptionPane.INFORMATION_MESSAGE);
+                updatePoblacionesList();
             } else {
                 JOptionPane.showMessageDialog(frame, "Error al cargar el experimento.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -92,26 +96,28 @@ public class Main {
         String filename = JOptionPane.showInputDialog(frame, "Ingrese el nombre del archivo para el nuevo experimento:");
         if (filename != null && !filename.isEmpty()) {
             currentExperiment = new Experimento(filename);
-            FileManager.saveExperiment(currentExperiment, filename);  // Save immediately to create file
+            FileManager.saveExperiment(currentExperiment, filename);
             JOptionPane.showMessageDialog(frame, "Nuevo experimento creado y guardado.", "Nuevo Experimento", JOptionPane.INFORMATION_MESSAGE);
+            updatePoblacionesList();
         }
     }
 
     private static JPanel createPopulationPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        listModel = new DefaultListModel<>();
+        listPoblaciones = new JList<>(listModel);
+        listPoblaciones.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        JTextArea populationDetails = new JTextArea(10, 50);
-        populationDetails.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(populationDetails);
+        JScrollPane scrollPane = new JScrollPane(listPoblaciones);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
+        JPanel buttonsPanel = new JPanel();
         JButton btnAdd = new JButton("Añadir Población");
         JButton btnRemove = new JButton("Eliminar Población");
 
         btnAdd.addActionListener(e -> addPopulation());
-        btnRemove.addActionListener(e -> removePopulation(populationDetails));
+        btnRemove.addActionListener(e -> removePopulation());
 
-        panel.add(scrollPane, BorderLayout.CENTER);
-        JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(btnAdd);
         buttonsPanel.add(btnRemove);
         panel.add(buttonsPanel, BorderLayout.SOUTH);
@@ -139,24 +145,29 @@ public class Main {
 
             Poblacion nuevaPoblacion = new Poblacion(nombre, fechaInicio, fechaFin, numBacterias, temperatura, luminosidad, comidaInicial, diaIncremento, comidaMaxima, comidaFinal);
             currentExperiment.addPoblacion(nuevaPoblacion);
+            updatePoblacionesList();
             JOptionPane.showMessageDialog(frame, "Población añadida correctamente.");
         } catch (DateTimeParseException ex) {
             JOptionPane.showMessageDialog(frame, "La fecha ingresada no es válida. Por favor, use el formato YYYY-M-D.");
         }
     }
 
-    private static void removePopulation(JTextArea textArea) {
-        if (currentExperiment == null) {
-            JOptionPane.showMessageDialog(frame, "No hay un experimento activo. Por favor, crea o carga un experimento primero.");
-            return;
+    private static void removePopulation() {
+        String selected = listPoblaciones.getSelectedValue();
+        if (selected != null && currentExperiment.removePoblacion(selected)) {
+            updatePoblacionesList();
+            JOptionPane.showMessageDialog(frame, "Población eliminada correctamente.");
+        } else {
+            JOptionPane.showMessageDialog(frame, "Seleccione una población para eliminar.");
         }
+    }
 
-        String[] options = currentExperiment.getPoblaciones().stream().map(Poblacion::getNombre).toArray(String[]::new);
-        String selected = (String) JOptionPane.showInputDialog(frame, "Seleccione la población a eliminar:", "Eliminar Población", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-        if (selected != null) {
-            currentExperiment.removePoblacion(selected);
-            textArea.setText("Población eliminada: " + selected);
+    private static void updatePoblacionesList() {
+        listModel.clear();
+        if (currentExperiment != null) {
+            for (Poblacion p : currentExperiment.getPoblaciones()) {
+                listModel.addElement(p.getNombre());
+            }
         }
     }
 
@@ -167,26 +178,22 @@ public class Main {
         JScrollPane scrollPane = new JScrollPane(detailsArea);
 
         JButton btnShowDetails = new JButton("Mostrar Detalles");
-        btnShowDetails.addActionListener(e -> showPopulationDetails(detailsArea));
+        btnShowDetails.addActionListener(e -> {
+            Poblacion p = currentExperiment.getPoblacion(listPoblaciones.getSelectedValue());
+            if (p != null) {
+                detailsArea.setText(p.toString());
+            } else {
+                detailsArea.setText("Seleccione una población para ver detalles.");
+            }
+        });
 
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(btnShowDetails, BorderLayout.SOUTH);
 
         return panel;
     }
-
-    private static void showPopulationDetails(JTextArea textArea) {
-        if (currentExperiment != null && !currentExperiment.getPoblaciones().isEmpty()) {
-            StringBuilder details = new StringBuilder();
-            for (Poblacion p : currentExperiment.getPoblaciones()) {
-                details.append(p.toString()).append("\n");
-            }
-            textArea.setText(details.toString());
-        } else {
-            textArea.setText("No hay poblaciones para mostrar o experimento no cargado.");
-        }
-    }
 }
+
 
 
 
