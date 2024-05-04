@@ -6,9 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.format.DateTimeParseException;
+
 public class Main {
     private static Experimento currentExperiment;
     private static JFrame frame;
@@ -56,7 +57,7 @@ public class Main {
         JFileChooser fileChooser = new JFileChooser(FileManager.DIRECTORY);
         int result = fileChooser.showOpenDialog(frame);
         if (result == JFileChooser.APPROVE_OPTION) {
-            String filename = fileChooser.getSelectedFile().getAbsolutePath();
+            String filename = fileChooser.getSelectedFile().getName();
             currentExperiment = FileManager.loadExperiment(filename);
             if (currentExperiment != null) {
                 JOptionPane.showMessageDialog(frame, "Experimento cargado correctamente.", "Cargar", JOptionPane.INFORMATION_MESSAGE);
@@ -72,9 +73,9 @@ public class Main {
             JOptionPane.showMessageDialog(frame, "No hay experimento activo para guardar.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        JFileChooser fileChooser = new JFileChooser(FileManager.DIRECTORY);
-        if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
-            String filename = fileChooser.getSelectedFile().getAbsolutePath();
+        String filename = JOptionPane.showInputDialog(frame, "Ingrese el nombre del archivo para guardar el experimento:");
+        if (filename != null && !filename.isEmpty()) {
+            currentExperiment.setArchivo(filename);
             FileManager.saveExperiment(currentExperiment, filename);
             JOptionPane.showMessageDialog(frame, "Experimento guardado correctamente.", "Guardar", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -84,8 +85,7 @@ public class Main {
         String filename = JOptionPane.showInputDialog(frame, "Ingrese el nombre del archivo para el nuevo experimento:");
         if (filename != null && !filename.isEmpty()) {
             currentExperiment = new Experimento(filename);
-            FileManager.saveExperiment(currentExperiment, filename);
-            JOptionPane.showMessageDialog(frame, "Nuevo experimento creado y guardado.", "Nuevo Experimento", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Nuevo experimento creado.", "Nuevo Experimento", JOptionPane.INFORMATION_MESSAGE);
             updatePoblacionesList();
         }
     }
@@ -120,7 +120,7 @@ public class Main {
         JTextField endDateField = new JTextField();
         JTextField numBacteriasField = new JTextField();
         JTextField temperaturaField = new JTextField();
-        JComboBox<String> luminosidadField = new JComboBox<>(new String[]{"Alta", "Media", "Baja"});
+        JTextField luminosidadField = new JTextField();
         JTextField comidaInicialField = new JTextField();
         JTextField diaIncrementoField = new JTextField();
         JTextField comidaMaximaField = new JTextField();
@@ -155,7 +155,7 @@ public class Main {
                 LocalDate fechaFin = LocalDate.parse(endDateField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 int numBacterias = Integer.parseInt(numBacteriasField.getText());
                 double temperatura = Double.parseDouble(temperaturaField.getText());
-                String luminosidad = luminosidadField.getSelectedItem().toString();
+                String luminosidad = luminosidadField.getText();
                 int comidaInicial = Integer.parseInt(comidaInicialField.getText());
                 int diaIncremento = Integer.parseInt(diaIncrementoField.getText());
                 int comidaMaxima = Integer.parseInt(comidaMaximaField.getText());
@@ -197,22 +197,16 @@ public class Main {
         JPanel panel = new JPanel(new BorderLayout());
         JTextArea detailsArea = new JTextArea();
         detailsArea.setEditable(false);
-        detailsArea.setMargin(new Insets(10, 10, 10, 10)); // Adding margin to the text area
-
         JScrollPane scrollPane = new JScrollPane(detailsArea);
 
         JButton btnShowDetails = new JButton("Mostrar Detalles");
         btnShowDetails.addActionListener(e -> {
-            StringBuilder details = new StringBuilder();
-            if (currentExperiment != null && currentExperiment.getPoblaciones() != null) {
-                for (Poblacion poblacion : currentExperiment.getPoblaciones()) {
-                    details.append("Población: ").append(poblacion.getNombre()).append("\n");
-                    String estimatedFood = calculateEstimatedFood(poblacion);
-                    details.append("Cantidad estimada de comida: ").append(estimatedFood).append("\n");
-                    details.append("\n");
-                }
+            Poblacion selectedPoblacion = currentExperiment.getPoblacion(listPoblaciones.getSelectedValue());
+            if (selectedPoblacion != null) {
+                detailsArea.setText(getPopulationDetails(selectedPoblacion));
+            } else {
+                detailsArea.setText("Seleccione una población para ver detalles.");
             }
-            detailsArea.setText(details.toString());
         });
 
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -221,32 +215,48 @@ public class Main {
         return panel;
     }
 
-    private static String calculateEstimatedFood(Poblacion poblacion) {
-        // Aquí puedes implementar tu lógica para calcular la cantidad de comida estimada
-        // basada en los parámetros de la población
-        // Esta es solo una implementación de ejemplo, necesitarás ajustarla según tus necesidades
-        double temperatura = poblacion.getTemperatura();
-        int numBacterias = poblacion.getNumBacterias();
-        int dias = (int) poblacion.getFechaInicio().until(poblacion.getFechaFin()).getDays(); // Calculating the number of days
-        double comidaInicial = poblacion.getComidaInicial();
+    private static String getPopulationDetails(Poblacion poblacion) {
+        StringBuilder details = new StringBuilder();
+        details.append("Detalles de la Población:\n");
+        details.append("Nombre: ").append(poblacion.getNombre()).append("\n");
+        details.append("Fecha de Inicio: ").append(poblacion.getFechaInicio()).append("\n");
+        details.append("Fecha de Fin: ").append(poblacion.getFechaFin()).append("\n");
+        details.append("Número de Bacterias: ").append(poblacion.getNumBacterias()).append("\n");
+        details.append("Temperatura: ").append(poblacion.getTemperatura()).append("\n");
+        details.append("Luminosidad: ").append(poblacion.getLuminosidad()).append("\n");
+        details.append("Comida Inicial: ").append(poblacion.getComidaInicial()).append("\n");
+        details.append("Día de Incremento Máximo: ").append(poblacion.getDiaIncremento()).append("\n");
+        details.append("Comida Máxima en el Día de Incremento: ").append(poblacion.getComidaMaxima()).append("\n");
+        details.append("Comida Final en Día 30: ").append(poblacion.getComidaFinal()).append("\n");
+        details.append("\n");
+
+        details.append("Cálculo estimado de la cantidad de comida por día:\n");
+        List<Integer> comidaPorDia = calcularComidaPorDia(poblacion);
+        for (int i = 0; i < comidaPorDia.size(); i++) {
+            details.append("Día ").append(i + 1).append(": ").append(comidaPorDia.get(i)).append(" unidades\n");
+        }
+        return details.toString();
+    }
+
+    private static List<Integer> calcularComidaPorDia(Poblacion poblacion) {
+        List<Integer> comidaPorDia = new ArrayList<>();
+        int comidaInicial = poblacion.getComidaInicial();
         int diaIncremento = poblacion.getDiaIncremento();
         int comidaMaxima = poblacion.getComidaMaxima();
         int comidaFinal = poblacion.getComidaFinal();
+        int numDias = poblacion.getFechaInicio().until(poblacion.getFechaFin()).getDays() + 1;
 
-        List<Double> comidaPorDia = new ArrayList<>();
-        for (int dia = 1; dia <= dias; dia++) {
-            double comida = comidaInicial;
+        for (int dia = 1; dia <= numDias; dia++) {
             if (dia % diaIncremento == 0) {
-                comida = Math.min(comidaMaxima, comida + comidaFinal);
+                comidaInicial += comidaMaxima;
             }
-            comidaPorDia.add(comida);
+            comidaPorDia.add(comidaInicial);
         }
-
-        // Summing up the total food for all days
-        double totalComida = comidaPorDia.stream().mapToDouble(Double::doubleValue).sum();
-        return String.format("%.2f", totalComida);
+        comidaPorDia.set(numDias - 1, comidaFinal); // Actualizar la comida final en el último día
+        return comidaPorDia;
     }
 }
+
 
 
 
