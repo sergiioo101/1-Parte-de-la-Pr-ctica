@@ -229,6 +229,7 @@ public class Main {
         LocalDate endDate = poblacion.getFechaFin();
         while (!currentDate.isAfter(endDate)) {
             // Simulate a day
+            // Here you can calculate the amount of food to provide each day based on the population's parameters
             String result = "Fecha: " + currentDate + ", Número de Bacterias: " + poblacion.getNumBacterias() + ", Temperatura: " + poblacion.getTemperatura() + ", Luminosidad: " + poblacion.getLuminosidad() + ", Comida Inicial: " + poblacion.getComidaInicial() + ", Día de Incremento Máximo: " + poblacion.getDiaIncremento() + ", Comida Máxima en el Día de Incremento: " + poblacion.getComidaMaxima() + ", Comida Final en Día 30: " + poblacion.getComidaFinal();
             results.add(result);
             currentDate = currentDate.plusDays(1);
@@ -236,6 +237,7 @@ public class Main {
         return results;
     }
 }
+
 
 
 
