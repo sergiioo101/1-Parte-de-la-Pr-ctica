@@ -6,15 +6,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.format.DateTimeParseException;
 
 public class Main {
     private static Experimento currentExperiment;
     private static JFrame frame;
     private static JList<String> listPoblaciones; // Lista para mostrar nombres de poblaciones
     private static DefaultListModel<String> listModel; // Modelo de datos para la lista
+    private static final String[] LUMINOSIDAD_OPTIONS = {"Alta", "Media", "Baja"};
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::createAndShowGUI);
@@ -120,7 +121,7 @@ public class Main {
         JTextField endDateField = new JTextField();
         JTextField numBacteriasField = new JTextField();
         JTextField temperaturaField = new JTextField();
-        JTextField luminosidadField = new JTextField();
+        JComboBox<String> luminosidadComboBox = new JComboBox<>(LUMINOSIDAD_OPTIONS);
         JTextField comidaInicialField = new JTextField();
         JTextField diaIncrementoField = new JTextField();
         JTextField comidaMaximaField = new JTextField();
@@ -137,7 +138,7 @@ public class Main {
         panel.add(new JLabel("Temperatura:"));
         panel.add(temperaturaField);
         panel.add(new JLabel("Luminosidad:"));
-        panel.add(luminosidadField);
+        panel.add(luminosidadComboBox);
         panel.add(new JLabel("Comida Inicial:"));
         panel.add(comidaInicialField);
         panel.add(new JLabel("Día de Incremento Máximo:"));
@@ -155,7 +156,7 @@ public class Main {
                 LocalDate fechaFin = LocalDate.parse(endDateField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 int numBacterias = Integer.parseInt(numBacteriasField.getText());
                 double temperatura = Double.parseDouble(temperaturaField.getText());
-                String luminosidad = luminosidadField.getText();
+                String luminosidad = luminosidadComboBox.getSelectedItem().toString();
                 int comidaInicial = Integer.parseInt(comidaInicialField.getText());
                 int diaIncremento = Integer.parseInt(diaIncrementoField.getText());
                 int comidaMaxima = Integer.parseInt(comidaMaximaField.getText());
@@ -256,6 +257,7 @@ public class Main {
         return comidaPorDia;
     }
 }
+
 
 
 
