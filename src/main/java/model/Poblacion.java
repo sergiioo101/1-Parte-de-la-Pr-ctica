@@ -67,8 +67,6 @@ public class Poblacion implements Serializable {
                 ", temperatura:" + temperatura +
                 ", luminosidad:'" + luminosidad + '\'' +
                 ", planAlimentacion:" + Arrays.toString(planAlimentacion) +
-                ", tasaCrecimiento:" + growthRate +
-                ", resistenciaAntibioticos:'" + antibioticResistance + '\'' +
                 '}';
     }
 }

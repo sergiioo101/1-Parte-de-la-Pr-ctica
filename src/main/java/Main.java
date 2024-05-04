@@ -3,17 +3,18 @@ import model.Experimento;
 import model.Poblacion;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     private static Experimento currentExperiment;
     private static JFrame frame;
-    private static JList<String> listPoblaciones;
-    private static DefaultListModel<String> listModel;
+    private static JList<String> listPoblaciones; // Lista para mostrar nombres de poblaciones
+    private static DefaultListModel<String> listModel; // Modelo de datos para la lista
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::createAndShowGUI);
@@ -120,7 +121,7 @@ public class Main {
         JTextField endDateField = new JTextField();
         JTextField numBacteriasField = new JTextField();
         JTextField temperaturaField = new JTextField();
-        JComboBox<String> luminosidadBox = new JComboBox<>(new String[]{"Alta", "Media", "Baja"});
+        JComboBox<String> luminosidadField = new JComboBox<>(new String[]{"Alta", "Media", "Baja"});
         JTextField comidaInicialField = new JTextField();
         JTextField diaIncrementoField = new JTextField();
         JTextField comidaMaximaField = new JTextField();
@@ -137,7 +138,7 @@ public class Main {
         panel.add(new JLabel("Temperatura:"));
         panel.add(temperaturaField);
         panel.add(new JLabel("Luminosidad:"));
-        panel.add(luminosidadBox);
+        panel.add(luminosidadField);
         panel.add(new JLabel("Comida Inicial:"));
         panel.add(comidaInicialField);
         panel.add(new JLabel("Día de Incremento Máximo:"));
@@ -153,13 +154,9 @@ public class Main {
                 String nombre = nameField.getText();
                 LocalDate fechaInicio = LocalDate.parse(startDateField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 LocalDate fechaFin = LocalDate.parse(endDateField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                if (ChronoUnit.DAYS.between(fechaInicio, fechaFin) > 30) {
-                    JOptionPane.showMessageDialog(frame, "La duración del experimento no puede ser mayor de 30 días.");
-                    return;
-                }
                 int numBacterias = Integer.parseInt(numBacteriasField.getText());
                 double temperatura = Double.parseDouble(temperaturaField.getText());
-                String luminosidad = (String) luminosidadBox.getSelectedItem();
+                String luminosidad = luminosidadField.getSelectedItem().toString();
                 int comidaInicial = Integer.parseInt(comidaInicialField.getText());
                 int diaIncremento = Integer.parseInt(diaIncrementoField.getText());
                 int comidaMaxima = Integer.parseInt(comidaMaximaField.getText());
@@ -205,12 +202,18 @@ public class Main {
 
         JButton btnShowDetails = new JButton("Mostrar Detalles");
         btnShowDetails.addActionListener(e -> {
-            Poblacion selectedPoblacion = currentExperiment.getPoblacion(listPoblaciones.getSelectedValue());
-            if (selectedPoblacion != null) {
-                detailsArea.setText(selectedPoblacion.toString());
-            } else {
-                detailsArea.setText("Seleccione una población para ver detalles.");
+            StringBuilder details = new StringBuilder();
+            if (currentExperiment != null && currentExperiment.getPoblaciones() != null) {
+                for (Poblacion poblacion : currentExperiment.getPoblaciones()) {
+                    details.append("Población: ").append(poblacion.getNombre()).append("\n");
+                    List<String> simulationResults = simulate(poblacion);
+                    for (int i = 0; i < simulationResults.size(); i++) {
+                        details.append("Día ").append(i + 1).append(": ").append(simulationResults.get(i)).append("\n");
+                    }
+                    details.append("\n");
+                }
             }
+            detailsArea.setText(details.toString());
         });
 
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -218,7 +221,22 @@ public class Main {
 
         return panel;
     }
+
+    private static List<String> simulate(Poblacion poblacion) {
+        List<String> results = new ArrayList<>();
+        LocalDate currentDate = poblacion.getFechaInicio();
+        LocalDate endDate = poblacion.getFechaFin();
+        while (!currentDate.isAfter(endDate)) {
+            // Simulate a day
+            String result = "Fecha: " + currentDate + ", Número de Bacterias: " + poblacion.getNumBacterias() + ", Temperatura: " + poblacion.getTemperatura() + ", Luminosidad: " + poblacion.getLuminosidad() + ", Comida Inicial: " + poblacion.getComidaInicial() + ", Día de Incremento Máximo: " + poblacion.getDiaIncremento() + ", Comida Máxima en el Día de Incremento: " + poblacion.getComidaMaxima() + ", Comida Final en Día 30: " + poblacion.getComidaFinal();
+            results.add(result);
+            currentDate = currentDate.plusDays(1);
+        }
+        return results;
+    }
 }
+
+
 
 
 
