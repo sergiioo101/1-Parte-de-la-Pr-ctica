@@ -18,6 +18,8 @@ public class Main {
     private static final String[] LUMINOSIDAD_OPTIONS = {"Alta", "Media", "Baja"};
 
     public static void main(String[] args) {
+        // Mensaje de bienvenida
+        JOptionPane.showMessageDialog(null, "¡Bienvenido al Gestor de Experimentos de Cultivo de Bacterias!", "Bienvenida", JOptionPane.INFORMATION_MESSAGE);
         SwingUtilities.invokeLater(Main::createAndShowGUI);
     }
 
@@ -162,6 +164,12 @@ public class Main {
                 int comidaMaxima = Integer.parseInt(comidaMaximaField.getText());
                 int comidaFinal = Integer.parseInt(comidaFinalField.getText());
 
+                // Limitar la duración del experimento a 30 días
+                if (fechaInicio.until(fechaFin).getDays() > 30) {
+                    fechaFin = fechaInicio.plusDays(30);
+                    JOptionPane.showMessageDialog(frame, "La duración del experimento se ha limitado a 30 días.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                }
+
                 Poblacion nuevaPoblacion = new Poblacion(nombre, fechaInicio, fechaFin, numBacterias, temperatura, luminosidad, comidaInicial, diaIncremento, comidaMaxima, comidaFinal);
                 currentExperiment.addPoblacion(nuevaPoblacion);
                 updatePoblacionesList();
@@ -257,7 +265,7 @@ public class Main {
             if (dia <= diaIncremento) {
                 // Hasta el día de incremento máximo, la comida aumenta gradualmente hasta la comida máxima en el día de incremento
                 double incrementoDiario = (double) (comidaMaxima - comidaInicial) / diaIncremento;
-                comidaDia = (int) (comidaInicial + dia * incrementoDiario);
+                comidaDia = (int) (comidaInicial + (dia - 1) * incrementoDiario);
             } else {
                 // Después del día de incremento máximo, la comida disminuye gradualmente hasta la comida final en el último día
                 double decrementoDiario = (double) (comidaMaxima - comidaFinal) / (30 - diaIncremento);
@@ -269,6 +277,7 @@ public class Main {
     }
 
 }
+
 
 
 
