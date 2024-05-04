@@ -69,6 +69,41 @@ public class Poblacion implements Serializable {
                 ", planAlimentacion:" + Arrays.toString(planAlimentacion) +
                 '}';
     }
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public LocalDate getFechaFin() {
+        return fechaFin;
+    }
+
+    public int getNumBacterias() {
+        return numBacterias;
+    }
+
+    public double getTemperatura() {
+        return temperatura;
+    }
+
+    public String getLuminosidad() {
+        return luminosidad;
+    }
+
+    public int getComidaInicial() {
+        return comidaInicial;
+    }
+
+    public int getDiaIncremento() {
+        return diaIncremento;
+    }
+
+    public int getComidaMaxima() {
+        return comidaMaxima;
+    }
+
+    public int getComidaFinal() {
+        return comidaFinal;
+    }
 }
 
 
